@@ -13,7 +13,7 @@ interface JobDetailsProps {
 const JobDetails: React.FC<JobDetailsProps> = ({ job, onClose, onEdit }) => {
   const { addNoteToJob, deleteJob } = useAppContext();
 
-  const statusColors = {
+  const statusColors: Record<string, string> = {
     applied: 'bg-blue-100 text-blue-800',
     'hr-screen': 'bg-indigo-100 text-indigo-800',
     'recruiter-call': 'bg-purple-100 text-purple-800',

@@ -6,8 +6,7 @@ import {
   ClipboardDocumentListIcon,
   ArrowTrendingUpIcon,
   ClockIcon,
-  CheckCircleIcon,
-  XCircleIcon
+  CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import { useAppContext } from '../context/AppContext';
 
@@ -80,7 +79,7 @@ const Dashboard: React.FC = () => {
     withdrawn: 'Withdrawn',
   };
 
-  const statusColors = {
+  const statusColors: Record<string, string> = {
     applied: 'bg-blue-100 text-blue-800',
     'hr-screen': 'bg-indigo-100 text-indigo-800',
     'recruiter-call': 'bg-purple-100 text-purple-800',
