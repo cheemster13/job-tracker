@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { PlusIcon, PencilIcon, TrashIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, PencilIcon, TrashIcon, GlobeAltIcon, EyeIcon } from '@heroicons/react/24/outline';
 import { Company } from '../types';
 import { useAppContext } from '../context/AppContext';
+import CompanyDetails from './CompanyDetails';
 
 const Companies: React.FC = () => {
-  const { companies, addCompany, updateCompany, deleteCompany } = useAppContext();
+  const { companies, addCompany, updateCompany, deleteCompany, jobs, contacts, tasks } = useAppContext();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
+  const [viewingCompany, setViewingCompany] = useState<Company | null>(null);
   const [newCompany, setNewCompany] = useState<Partial<Company>>({
     name: '',
     website: '',
@@ -183,65 +185,122 @@ const Companies: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {companies.map((company) => (
-            <div
-              key={company.id}
-              className="bg-white overflow-hidden shadow rounded-lg divide-y divide-gray-200"
-            >
-              <div className="px-4 py-5 sm:px-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-medium text-gray-900">{company.name}</h3>
-                  <div className="flex space-x-2">
-                    {company.website && (
-                      <a
-                        href={company.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-400 hover:text-gray-500"
+          {companies.map((company) => {
+            const companyJobs = jobs.filter(job => job.company.toLowerCase() === company.name.toLowerCase());
+            const companyContacts = contacts.filter(contact => contact.company.toLowerCase() === company.name.toLowerCase());
+            const companyTasks = tasks.filter(task => 
+              task.company?.toLowerCase() === company.name.toLowerCase() ||
+              (task.relatedTo?.type === 'company' && task.relatedTo.id === company.id)
+            );
+            
+            return (
+              <div
+                key={company.id}
+                className="bg-white overflow-hidden shadow rounded-lg divide-y divide-gray-200"
+              >
+                <div className="px-4 py-5 sm:px-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-medium text-gray-900">{company.name}</h3>
+                    <div className="flex space-x-2">
+                      {company.website && (
+                        <a
+                          href={company.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-400 hover:text-gray-500"
+                        >
+                          <GlobeAltIcon className="h-5 w-5" />
+                        </a>
+                      )}
+                      <button 
+                        onClick={() => setViewingCompany(company)}
+                        className="text-blue-600 hover:text-blue-900"
+                        title="View Details"
                       >
-                        <GlobeAltIcon className="h-5 w-5" />
-                      </a>
-                    )}
-                    <button 
-                      onClick={() => handleEditCompany(company)}
-                      className="text-indigo-600 hover:text-indigo-900"
-                    >
-                      <PencilIcon className="h-5 w-5" />
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteCompany(company.id)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      <TrashIcon className="h-5 w-5" />
-                    </button>
+                        <EyeIcon className="h-5 w-5" />
+                      </button>
+                      <button 
+                        onClick={() => handleEditCompany(company)}
+                        className="text-indigo-600 hover:text-indigo-900"
+                        title="Edit Company"
+                      >
+                        <PencilIcon className="h-5 w-5" />
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteCompany(company.id)}
+                        className="text-red-600 hover:text-red-900"
+                        title="Delete Company"
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Activity Summary */}
+                  <div className="mt-3 flex space-x-4">
+                    <div className="flex items-center text-sm text-gray-500">
+                      <span className="font-medium text-blue-600">{companyJobs.length}</span>
+                      <span className="ml-1">jobs</span>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-500">
+                      <span className="font-medium text-green-600">{companyContacts.length}</span>
+                      <span className="ml-1">contacts</span>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-500">
+                      <span className="font-medium text-yellow-600">{companyTasks.length}</span>
+                      <span className="ml-1">tasks</span>
+                    </div>
                   </div>
                 </div>
+                
+                <div className="px-4 py-5 sm:p-6">
+                  <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                    {company.industry && (
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">Industry</dt>
+                        <dd className="mt-1 text-sm text-gray-900">{company.industry}</dd>
+                      </div>
+                    )}
+                    {company.location && (
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">Location</dt>
+                        <dd className="mt-1 text-sm text-gray-900">{company.location}</dd>
+                      </div>
+                    )}
+                    
+                    {/* Recent Job Activity */}
+                    {companyJobs.length > 0 && (
+                      <div className="sm:col-span-2">
+                        <dt className="text-sm font-medium text-gray-500">Latest Application</dt>
+                        <dd className="mt-1 text-sm text-gray-900">
+                          {companyJobs[companyJobs.length - 1].title} • 
+                          <span className="ml-1 text-xs text-gray-500">
+                            {new Date(companyJobs[companyJobs.length - 1].dateApplied).toLocaleDateString()}
+                          </span>
+                        </dd>
+                      </div>
+                    )}
+                    
+                    {company.notes && (
+                      <div className="sm:col-span-2">
+                        <dt className="text-sm font-medium text-gray-500">Notes</dt>
+                        <dd className="mt-1 text-sm text-gray-900 line-clamp-2">{company.notes}</dd>
+                      </div>
+                    )}
+                  </dl>
+                </div>
               </div>
-              <div className="px-4 py-5 sm:p-6">
-                <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-                  {company.industry && (
-                    <div>
-                      <dt className="text-sm font-medium text-gray-500">Industry</dt>
-                      <dd className="mt-1 text-sm text-gray-900">{company.industry}</dd>
-                    </div>
-                  )}
-                  {company.location && (
-                    <div>
-                      <dt className="text-sm font-medium text-gray-500">Location</dt>
-                      <dd className="mt-1 text-sm text-gray-900">{company.location}</dd>
-                    </div>
-                  )}
-                  {company.notes && (
-                    <div className="sm:col-span-2">
-                      <dt className="text-sm font-medium text-gray-500">Notes</dt>
-                      <dd className="mt-1 text-sm text-gray-900">{company.notes}</dd>
-                    </div>
-                  )}
-                </dl>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
+      )}
+
+      {/* Company Details Modal */}
+      {viewingCompany && (
+        <CompanyDetails
+          company={viewingCompany}
+          onClose={() => setViewingCompany(null)}
+        />
       )}
     </div>
   );

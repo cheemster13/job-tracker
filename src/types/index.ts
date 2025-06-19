@@ -37,10 +37,14 @@ export interface Task {
   dueDate?: string;
   status: 'pending' | 'completed';
   priority: 'low' | 'medium' | 'high';
+  type: 'call' | 'meeting' | 'follow-up' | 'research' | 'application' | 'other';
+  company?: string; // Company name for easier filtering
   relatedTo?: {
-    type: 'job' | 'contact';
+    type: 'job' | 'contact' | 'company';
     id: string;
   };
+  postCallNotes?: string; // Notes after completing a call/meeting
+  completedDate?: string; // When the task was completed
 }
 
 export interface Company {
