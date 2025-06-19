@@ -11,7 +11,7 @@ import {
   ClockIcon,
   CheckCircleIcon
 } from '@heroicons/react/24/outline';
-import { Company, Job, Contact, Task } from '../types';
+import { Company, Task } from '../types';
 import { useAppContext } from '../context/AppContext';
 import NotesSection from './NotesSection';
 

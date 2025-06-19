@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PlusIcon, PencilIcon, TrashIcon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, PencilIcon, TrashIcon, CheckCircleIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { Task } from '../types';
 import { useAppContext } from '../context/AppContext';
 
