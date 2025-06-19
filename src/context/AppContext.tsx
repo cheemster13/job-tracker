@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Job, Contact, Company, Task } from '../types';
+import { Job, Contact, Company, Task, Note } from '../types';
 
 interface AppContextType {
   jobs: Job[];
@@ -18,6 +18,9 @@ interface AppContextType {
   deleteContact: (id: string) => void;
   deleteCompany: (id: string) => void;
   deleteTask: (id: string) => void;
+  addNoteToJob: (jobId: string, note: Omit<Note, 'id' | 'timestamp'>) => void;
+  addNoteToContact: (contactId: string, note: Omit<Note, 'id' | 'timestamp'>) => void;
+  addNoteToCompany: (companyId: string, note: Omit<Note, 'id' | 'timestamp'>) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -154,6 +157,57 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setTasks(prev => prev.filter(task => task.id !== id));
   };
 
+  const addNoteToJob = (jobId: string, noteData: Omit<Note, 'id' | 'timestamp'>) => {
+    const newNote: Note = {
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      timestamp: new Date().toISOString(),
+      ...noteData,
+    };
+    
+    setJobs(prev => prev.map(job => 
+      job.id === jobId 
+        ? { 
+            ...job, 
+            notesList: [...(job.notesList || []), newNote] 
+          }
+        : job
+    ));
+  };
+
+  const addNoteToContact = (contactId: string, noteData: Omit<Note, 'id' | 'timestamp'>) => {
+    const newNote: Note = {
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      timestamp: new Date().toISOString(),
+      ...noteData,
+    };
+    
+    setContacts(prev => prev.map(contact => 
+      contact.id === contactId 
+        ? { 
+            ...contact, 
+            notesList: [...(contact.notesList || []), newNote] 
+          }
+        : contact
+    ));
+  };
+
+  const addNoteToCompany = (companyId: string, noteData: Omit<Note, 'id' | 'timestamp'>) => {
+    const newNote: Note = {
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      timestamp: new Date().toISOString(),
+      ...noteData,
+    };
+    
+    setCompanies(prev => prev.map(company => 
+      company.id === companyId 
+        ? { 
+            ...company, 
+            notesList: [...(company.notesList || []), newNote] 
+          }
+        : company
+    ));
+  };
+
   const value: AppContextType = {
     jobs,
     contacts,
@@ -171,6 +225,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     deleteContact,
     deleteCompany,
     deleteTask,
+    addNoteToJob,
+    addNoteToContact,
+    addNoteToCompany,
   };
 
   return (

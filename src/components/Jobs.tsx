@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, PencilIcon, TrashIcon, EyeIcon } from '@heroicons/react/24/outline';
 import { Job } from '../types';
 import { useAppContext } from '../context/AppContext';
+import JobDetails from './JobDetails';
 
 const Jobs: React.FC = () => {
   const { jobs, addJob, updateJob, deleteJob } = useAppContext();
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
+  const [viewingJob, setViewingJob] = useState<Job | null>(null);
   const [newJob, setNewJob] = useState<Partial<Job>>({
     title: '',
     company: '',
@@ -53,6 +55,7 @@ const Jobs: React.FC = () => {
 
   const handleEditJob = (job: Job) => {
     setEditingJob(job);
+    setViewingJob(null); // Close details view if open
     setNewJob({
       title: job.title,
       company: job.company,
@@ -62,6 +65,10 @@ const Jobs: React.FC = () => {
       description: job.description,
       salary: job.salary,
     });
+  };
+
+  const handleViewJob = (job: Job) => {
+    setViewingJob(job);
   };
 
   const handleUpdateJob = () => {
@@ -254,8 +261,17 @@ const Jobs: React.FC = () => {
               {jobs.map((job) => (
                 <tr key={job.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{job.title}</div>
-                    {job.salary && <div className="text-sm text-gray-500">{job.salary}</div>}
+                    <div className="flex items-center">
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">{job.title}</div>
+                        {job.salary && <div className="text-sm text-gray-500">{job.salary}</div>}
+                      </div>
+                      {(job.notesList && job.notesList.length > 0) && (
+                        <div className="ml-2 bg-blue-100 text-blue-600 text-xs px-2 py-1 rounded-full">
+                          {job.notesList.length} notes
+                        </div>
+                      )}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{job.company}</div>
@@ -273,14 +289,23 @@ const Jobs: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button 
+                      onClick={() => handleViewJob(job)}
+                      className="text-blue-600 hover:text-blue-900 mr-3"
+                      title="View Details"
+                    >
+                      <EyeIcon className="h-5 w-5" />
+                    </button>
+                    <button 
                       onClick={() => handleEditJob(job)}
-                      className="text-indigo-600 hover:text-indigo-900 mr-4"
+                      className="text-indigo-600 hover:text-indigo-900 mr-3"
+                      title="Edit Job"
                     >
                       <PencilIcon className="h-5 w-5" />
                     </button>
                     <button 
                       onClick={() => handleDeleteJob(job.id)}
                       className="text-red-600 hover:text-red-900"
+                      title="Delete Job"
                     >
                       <TrashIcon className="h-5 w-5" />
                     </button>
@@ -290,6 +315,15 @@ const Jobs: React.FC = () => {
             </tbody>
           </table>
         </div>
+      )}
+
+      {/* Job Details Modal */}
+      {viewingJob && (
+        <JobDetails
+          job={viewingJob}
+          onClose={() => setViewingJob(null)}
+          onEdit={handleEditJob}
+        />
       )}
     </div>
   );

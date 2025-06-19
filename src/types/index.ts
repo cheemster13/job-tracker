@@ -1,3 +1,10 @@
+export interface Note {
+  id: string;
+  content: string;
+  timestamp: string;
+  type?: 'general' | 'interview' | 'follow-up' | 'research' | 'update';
+}
+
 export interface Job {
   id: string;
   title: string;
@@ -7,7 +14,8 @@ export interface Job {
   dateApplied: string;
   description?: string;
   salary?: string;
-  notes?: string;
+  notes?: string; // Keep for backward compatibility
+  notesList?: Note[]; // New timestamped notes
 }
 
 export interface Contact {
@@ -18,7 +26,8 @@ export interface Contact {
   email?: string;
   phone?: string;
   linkedin?: string;
-  notes?: string;
+  notes?: string; // Keep for backward compatibility
+  notesList?: Note[]; // New timestamped notes
 }
 
 export interface Task {
@@ -40,5 +49,6 @@ export interface Company {
   website?: string;
   industry?: string;
   location?: string;
-  notes?: string;
+  notes?: string; // Keep for backward compatibility
+  notesList?: Note[]; // New timestamped notes
 } 
