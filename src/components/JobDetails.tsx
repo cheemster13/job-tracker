@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { XMarkIcon, PencilIcon, TrashIcon, CalendarIcon, MapPinIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
 import { Job } from '../types';
 import { useAppContext } from '../context/AppContext';
@@ -15,10 +15,18 @@ const JobDetails: React.FC<JobDetailsProps> = ({ job, onClose, onEdit }) => {
 
   const statusColors = {
     applied: 'bg-blue-100 text-blue-800',
-    interviewing: 'bg-yellow-100 text-yellow-800',
+    'hr-screen': 'bg-indigo-100 text-indigo-800',
+    'recruiter-call': 'bg-purple-100 text-purple-800',
+    'hiring-manager': 'bg-pink-100 text-pink-800',
+    'team-interview': 'bg-orange-100 text-orange-800',
+    'final-interview': 'bg-amber-100 text-amber-800',
+    'on-site': 'bg-yellow-100 text-yellow-800',
     offered: 'bg-green-100 text-green-800',
+    'offer-accepted': 'bg-emerald-100 text-emerald-800',
+    'offer-declined': 'bg-gray-100 text-gray-800',
     rejected: 'bg-red-100 text-red-800',
-    accepted: 'bg-purple-100 text-purple-800',
+    'pending-visa': 'bg-cyan-100 text-cyan-800',
+    withdrawn: 'bg-slate-100 text-slate-800',
   };
 
   const handleAddNote = (noteData: Parameters<typeof addNoteToJob>[1]) => {

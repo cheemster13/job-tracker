@@ -10,7 +10,7 @@ export interface Job {
   title: string;
   company: string;
   location: string;
-  status: 'applied' | 'interviewing' | 'offered' | 'rejected' | 'accepted';
+  status: 'applied' | 'hr-screen' | 'recruiter-call' | 'hiring-manager' | 'team-interview' | 'final-interview' | 'on-site' | 'offered' | 'offer-accepted' | 'offer-declined' | 'rejected' | 'pending-visa' | 'withdrawn';
   dateApplied: string;
   description?: string;
   salary?: string;
