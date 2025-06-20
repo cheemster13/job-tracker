@@ -6,12 +6,79 @@ import {
   ClipboardDocumentListIcon,
   ArrowTrendingUpIcon,
   ClockIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  ArrowDownTrayIcon,
+  ArrowUpTrayIcon,
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import { useAppContext } from '../context/AppContext';
 
 const Dashboard: React.FC = () => {
   const { jobs, contacts, companies, tasks } = useAppContext();
+  
+  // Export/Import functions
+  const handleExportData = () => {
+    const allData = {
+      jobs,
+      contacts,
+      companies,
+      tasks,
+      exportDate: new Date().toISOString(),
+      version: '1.0'
+    };
+    
+    const dataStr = JSON.stringify(allData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `job-tracker-data-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleImportData = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const importedData = JSON.parse(e.target?.result as string);
+        
+        // Validate the data structure
+        if (!importedData.jobs || !importedData.contacts || !importedData.companies || !importedData.tasks) {
+          alert('Invalid file format. Please select a valid Job Tracker export file.');
+          return;
+        }
+
+        // Confirm before importing
+        const confirmMsg = `This will replace all your current data with the imported data.\n\n` +
+          `Current data: ${jobs.length} jobs, ${contacts.length} contacts, ${companies.length} companies, ${tasks.length} tasks\n` +
+          `Import data: ${importedData.jobs.length} jobs, ${importedData.contacts.length} contacts, ${importedData.companies.length} companies, ${importedData.tasks.length} tasks\n\n` +
+          `Are you sure you want to continue?`;
+        
+        if (window.confirm(confirmMsg)) {
+          // Store data directly to localStorage (bypassing React state for immediate effect)
+          localStorage.setItem('jobTracker-jobs', JSON.stringify(importedData.jobs));
+          localStorage.setItem('jobTracker-contacts', JSON.stringify(importedData.contacts));
+          localStorage.setItem('jobTracker-companies', JSON.stringify(importedData.companies));
+          localStorage.setItem('jobTracker-tasks', JSON.stringify(importedData.tasks));
+          
+          // Reload the page to refresh all React state
+          window.location.reload();
+        }
+      } catch (error) {
+        alert('Error reading file. Please make sure it\'s a valid JSON file exported from Job Tracker.');
+        console.error('Import error:', error);
+      }
+    };
+    
+    reader.readAsText(file);
+    // Reset the input
+    event.target.value = '';
+  };
   
   // Calculate job metrics
   const totalJobs = jobs.length;
@@ -220,6 +287,69 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Data Export/Import Section */}
+      <div className="bg-white shadow rounded-lg">
+        <div className="px-4 py-5 sm:px-6">
+          <h3 className="text-lg font-medium leading-6 text-gray-900">Data Management</h3>
+          <p className="mt-1 text-sm text-gray-500">
+            Export your data to transfer to another device, or import data from another device
+          </p>
+        </div>
+        <div className="border-t border-gray-200">
+          <div className="px-4 py-5 sm:p-6">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <button
+                  onClick={handleExportData}
+                  className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  <ArrowDownTrayIcon className="h-5 w-5 mr-2" />
+                  Export Data
+                </button>
+                <p className="mt-2 text-xs text-gray-500">
+                  Download all your data as a JSON file
+                </p>
+              </div>
+              <div className="flex-1">
+                <label className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer">
+                  <ArrowUpTrayIcon className="h-5 w-5 mr-2" />
+                  Import Data
+                  <input
+                    type="file"
+                    accept=".json"
+                    onChange={handleImportData}
+                    className="sr-only"
+                  />
+                </label>
+                <p className="mt-2 text-xs text-gray-500">
+                  Upload a JSON file exported from Job Tracker
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <ExclamationTriangleIcon className="h-5 w-5 text-yellow-400" />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-yellow-800">
+                    Important Note
+                  </h3>
+                  <div className="mt-2 text-sm text-yellow-700">
+                    <ul className="list-disc list-inside space-y-1">
+                      <li>Data is stored locally in your browser</li>
+                      <li>Export your data before clearing browser cache</li>
+                      <li>Import will replace ALL current data</li>
+                      <li>Create a backup before importing</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Notes Summary */}
       {jobs.some(job => job.notesList && job.notesList.length > 0) && (
