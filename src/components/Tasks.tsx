@@ -137,7 +137,16 @@ const Tasks: React.FC = () => {
 
   const isOverdue = (task: Task) => {
     if (!task.dueDate || task.status === 'completed') return false;
-    return new Date(task.dueDate) < new Date();
+    // Compare date strings directly to avoid timezone issues
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    return task.dueDate < today;
+  };
+
+  const formatDate = (dateString: string) => {
+    // Parse date string directly to avoid timezone conversion
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day); // month is 0-indexed
+    return date.toLocaleDateString();
   };
 
   // Separate overdue tasks
@@ -297,7 +306,7 @@ const Tasks: React.FC = () => {
                         )}
                       </div>
                       <p className="text-xs text-red-600 mt-1">
-                        Due: {new Date(task.dueDate!).toLocaleDateString()} (Overdue)
+                        Due: {formatDate(task.dueDate!)} (Overdue)
                       </p>
                       {(task.type === 'call' || task.type === 'meeting') && (
                         <p className="text-xs text-red-500 mt-1">
@@ -369,7 +378,7 @@ const Tasks: React.FC = () => {
                         )}
                         {task.completedDate && (
                           <p className="text-xs text-green-600 mt-1">
-                            Completed: {new Date(task.completedDate).toLocaleDateString()}
+                            Completed: {formatDate(task.completedDate.split('T')[0])}
                           </p>
                         )}
                       </div>
@@ -380,7 +389,7 @@ const Tasks: React.FC = () => {
                       </span>
                       {task.dueDate && (
                         <span className="text-sm text-gray-500">
-                          Due: {new Date(task.dueDate).toLocaleDateString()}
+                          Due: {formatDate(task.dueDate)}
                         </span>
                       )}
                       <div className="flex space-x-2">
